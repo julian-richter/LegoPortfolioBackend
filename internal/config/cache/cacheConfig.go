@@ -1,8 +1,6 @@
 package cache
 
 import (
-	"os"
-
 	"LegoManagerAPI/internal/config/configUtilities"
 )
 
@@ -17,9 +15,9 @@ type CacheConfig struct {
 // LoadCacheConfig initializes and returns a CacheConfig struct populated with values from environment variables.
 func LoadCacheConfig() CacheConfig {
 	return CacheConfig{
-		Host:     configUtilities.GetEnvAsString(os.Getenv("REDIS_HOST"), "localhost"),
-		Port:     configUtilities.GetEnvAsInt(os.Getenv("REDIS_PORT"), 6379),
-		Password: configUtilities.GetEnvAsString(os.Getenv("REDIS_PASSWORD"), "password"),
-		DB:       configUtilities.GetEnvAsInt(os.Getenv("REDIS_DB"), 1),
+		Host:     configUtilities.GetEnvAsString("REDIS_HOST", "localhost"),
+		Port:     configUtilities.GetEnvAsInt("REDIS_PORT", 6379),
+		Password: configUtilities.GetEnvAsString("REDIS_PASSWORD", "password"),
+		DB:       configUtilities.GetEnvAsInt("REDIS_DB", 1),
 	}
 }
