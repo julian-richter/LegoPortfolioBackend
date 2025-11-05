@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"LegoManagerAPI/internal/health"
+	"LegoManagerAPI/internal/api/handlers/health"
 )
 
 type ApplicationCheck struct{}

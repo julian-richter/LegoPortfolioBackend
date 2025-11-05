@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"time"
 
+	"LegoManagerAPI/internal/api/handlers/health"
 	"LegoManagerAPI/internal/api/response"
-	"LegoManagerAPI/internal/health"
 )
 
 type HealthHandler struct {

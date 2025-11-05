@@ -4,8 +4,8 @@ import (
 	"context"
 	"time"
 
+	"LegoManagerAPI/internal/api/handlers/health"
 	"LegoManagerAPI/internal/cache"
-	"LegoManagerAPI/internal/health"
 )
 
 type RedisCheck struct {

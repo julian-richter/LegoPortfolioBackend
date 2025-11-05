@@ -8,27 +8,27 @@ import (
 	"github.com/charmbracelet/log"
 
 	"LegoManagerAPI/internal/api/handlers"
+	health2 "LegoManagerAPI/internal/api/handlers/health"
+	checks2 "LegoManagerAPI/internal/api/handlers/health/checks"
 	"LegoManagerAPI/internal/cache"
 	"LegoManagerAPI/internal/config"
 	"LegoManagerAPI/internal/database"
-	"LegoManagerAPI/internal/health"
-	"LegoManagerAPI/internal/health/checks"
 )
 
 type Server struct {
 	httpServer    *http.Server
 	cfg           *config.Config
-	HealthService *health.Service
+	HealthService *health2.Service
 }
 
 func NewServer(cfg *config.Config, db *database.PostgresDB, redisClient *cache.RedisClient) *Server {
-	healthCheckers := []health.Checker{
-		checks.NewPostgresCheck(db),
-		checks.NewRedisCheck(redisClient),
-		checks.NewApplicationCheck(),
+	healthCheckers := []health2.Checker{
+		checks2.NewPostgresCheck(db),
+		checks2.NewRedisCheck(redisClient),
+		checks2.NewApplicationCheck(),
 	}
 
-	healthService := health.NewService(cfg.App.Environment, healthCheckers...)
+	healthService := health2.NewService(cfg.App.Environment, healthCheckers...)
 
 	router := http.NewServeMux()
 

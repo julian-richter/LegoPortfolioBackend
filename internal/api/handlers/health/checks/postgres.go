@@ -4,8 +4,8 @@ import (
 	"context"
 	"time"
 
+	"LegoManagerAPI/internal/api/handlers/health"
 	"LegoManagerAPI/internal/database"
-	"LegoManagerAPI/internal/health"
 )
 
 type PostgresCheck struct {
