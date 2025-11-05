@@ -17,10 +17,10 @@ type BaseModel struct {
 	UpdatedAt time.Time `json:"updated_at" db:"updated_at"`
 }
 
-func (b *BaseModel) GetID() int64 {
+func (b BaseModel) GetID() int64 {
 	return b.ID
 }
 
-func (b *BaseModel) SetID(id int64) {
+func (b BaseModel) SetID(id int64) {
 	b.ID = id
 }
