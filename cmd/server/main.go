@@ -10,6 +10,7 @@ import (
 	"github.com/joho/godotenv"
 
 	"LegoManagerAPI/internal/api"
+	"LegoManagerAPI/internal/api/service"
 	"LegoManagerAPI/internal/cache"
 	"LegoManagerAPI/internal/config"
 	"LegoManagerAPI/internal/config/application"
@@ -28,16 +29,16 @@ func init() {
 func main() {
 	// Load configuration
 	log.Info("Loading configuration...")
-	Cfg, err := config.Load()
+	cfg, err := config.Load()
 	if err != nil {
 		log.Fatal("Failed to load config", "error", err)
 	}
-	application.SetupLogger(Cfg.App.LogLVL)
+	application.SetupLogger(cfg.App.LogLVL)
 	log.Info("Configuration loaded successfully")
 
 	// Initialize database connection
 	log.Info("Connecting to database...")
-	db, err := database.NewPostgresDB(Cfg.Database)
+	db, err := database.NewPostgresDB(cfg.Database)
 	if err != nil {
 		log.Fatal("Failed to connect to database", "error", err)
 	}
@@ -56,29 +57,48 @@ func main() {
 
 	// Initialize Redis connection
 	log.Info("Connecting to Redis...")
-	redisClient, err := cache.NewRedisClient(Cfg.Cache)
+	redisClient, err := cache.NewRedisClient(cfg.Cache)
 	if err != nil {
 		log.Fatal("Failed to connect to Redis", "error", err)
 	}
 	defer redisClient.Close()
 
-	server := api.NewServer(Cfg, db, redisClient)
+	// Initialize Bricklink service
+	bricklinkService := service.NewBricklinkService(cfg.Bricklink)
+	log.Info("Bricklink service initialized")
 
-	// start the server in goroutine for performance best practice and so it doesnt block requests
+	// Create HTTP server
+	server := api.NewServer(cfg, db, redisClient, bricklinkService)
+
+	// Start the server in goroutine so it doesn't block
 	go func() {
 		if err := server.Start(); err != nil {
 			log.Fatal("Failed to start server", "error", err)
 		}
 	}()
 
+	log.Info("Application is running. Press Ctrl+C to exit.")
+
 	// Wait for interrupt signal for graceful shutdown
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
-
-	log.Info("Application is running. Press Ctrl+C to exit.")
 	<-quit
 
 	log.Info("Shutting down gracefully...")
+
+	// Create shutdown context with timeout
+	shutdownCtx, shutdownCancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer shutdownCancel()
+
+	// Shutdown HTTP server
+	if err := server.Shutdown(shutdownCtx); err != nil {
+		log.Error("Server shutdown error", "error", err)
+	}
+
+	// Close Redis connection
+	if err := redisClient.Close(); err != nil {
+		log.Error("Error closing Redis", "error", err)
+	}
 
 	// Close database connection
 	if err := db.Close(); err != nil {

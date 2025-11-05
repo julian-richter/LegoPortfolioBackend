@@ -12,6 +12,7 @@ import (
 	"LegoManagerAPI/internal/api/handlers"
 	health2 "LegoManagerAPI/internal/api/handlers/health"
 	checks2 "LegoManagerAPI/internal/api/handlers/health/checks"
+	"LegoManagerAPI/internal/api/service"
 	"LegoManagerAPI/internal/cache"
 	"LegoManagerAPI/internal/config"
 	"LegoManagerAPI/internal/database"
@@ -24,7 +25,7 @@ type Server struct {
 	HealthService *health2.Service
 }
 
-func NewServer(cfg *config.Config, db *database.PostgresDB, redisClient *cache.RedisClient) *Server {
+func NewServer(cfg *config.Config, db *database.PostgresDB, redisClient *cache.RedisClient, bricklinkService *service.BricklinkService) *Server {
 	// Health checks
 	healthCheckers := []health2.Checker{
 		checks2.NewPostgresCheck(db),
@@ -39,6 +40,7 @@ func NewServer(cfg *config.Config, db *database.PostgresDB, redisClient *cache.R
 	// Initialize handlers
 	healthHandler := handlers.NewHealthHandler(healthService)
 	userHandler := handlers.NewUserHandler(userRepo)
+	bricklinkHandler := handlers.NewBricklinkHandler(bricklinkService)
 
 	// Setup router
 	router := http.NewServeMux()
@@ -88,6 +90,13 @@ func NewServer(cfg *config.Config, db *database.PostgresDB, redisClient *cache.R
 		}
 	})
 
+	router.HandleFunc("/api/bricklink/minifig/", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == http.MethodGet {
+			bricklinkHandler.GetMinifig(w, r)
+		} else {
+			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		}
+	})
 	server := &http.Server{
 		Addr:         fmt.Sprintf(":%d", cfg.App.Port),
 		Handler:      router,
