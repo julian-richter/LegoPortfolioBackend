@@ -8,4 +8,13 @@
     <output_directory value="$PROJECT_DIR$/build/bin" />
     <method v="2" />
   </configuration>
+  <configuration default="false" name="Server" type="GoApplicationRunConfiguration" factoryName="Go Application">
+    <module name="LegoManagerAPI" />
+    <working_directory value="$PROJECT_DIR$" />
+    <kind value="DIRECTORY" />
+    <package value="LegoManagerAPI" />
+    <directory value="$PROJECT_DIR$/cmd/server" />
+    <output_directory value="$PROJECT_DIR$/build/bin" />
+    <method v="2" />
+  </configuration>
 </component>

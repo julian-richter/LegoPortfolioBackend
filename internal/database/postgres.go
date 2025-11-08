@@ -19,8 +19,8 @@ type PostgresDB struct {
 func NewPostgresDB(cfg database.DatabaseConfig) (*PostgresDB, error) {
 	// Build the connection string
 	connectionString := fmt.Sprintf(
-		"host=%s port=%d user=%s dbname=%s sslmode=%s pool_max_conns=%d pool_min_conns=%d",
-		cfg.Host, cfg.Port, cfg.User, cfg.DBName, cfg.SSLMode, cfg.MaxConns, cfg.MinConns)
+		"host=%s port=%d user=%s password=%s dbname=%s sslmode=%s pool_max_conns=%d pool_min_conns=%d",
+		cfg.Host, cfg.Port, cfg.User, cfg.Password, cfg.DBName, cfg.SSLMode, cfg.MaxConns, cfg.MinConns)
 
 	log.Debug("Attempting to connect to database", "connection_string", connectionString)
 
@@ -65,7 +65,7 @@ func (db *PostgresDB) Close() error {
 	return nil
 }
 
-// Stats returns real-time statistics of the connection pool for monitoring purposes.
+// Stats return real-time statistics of the connection pool for monitoring purposes.
 func (db *PostgresDB) Stats() *pgxpool.Stat {
 	return db.Pool.Stat()
 }
